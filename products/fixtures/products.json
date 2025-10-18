@@ -1,0 +1,72 @@
+[
+    {
+        "model": "products.product",
+        "pk": 1,
+        "fields": {
+            "name": "Coca Cola 500ml",
+            "sku": "BEV001",
+            "category": "Beverages",
+            "unit_price": "1.50",
+            "quantity_in_stock": 100,
+            "low_stock_threshold": 20,
+            "created_at": "2025-10-18T10:00:00Z",
+            "updated_at": "2025-10-18T10:00:00Z"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 2,
+        "fields": {
+            "name": "Bread Loaf",
+            "sku": "BAK001",
+            "category": "Bakery",
+            "unit_price": "2.00",
+            "quantity_in_stock": 3,
+            "low_stock_threshold": 5,
+            "created_at": "2025-10-18T10:00:00Z",
+            "updated_at": "2025-10-18T10:00:00Z"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 3,
+        "fields": {
+            "name": "Milk 1L",
+            "sku": "DAI001",
+            "category": "Dairy",
+            "unit_price": "3.50",
+            "quantity_in_stock": 50,
+            "low_stock_threshold": 10,
+            "created_at": "2025-10-18T10:00:00Z",
+            "updated_at": "2025-10-18T10:00:00Z"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 4,
+        "fields": {
+            "name": "Rice 5kg",
+            "sku": "GRN001",
+            "category": "Grains",
+            "unit_price": "15.00",
+            "quantity_in_stock": 2,
+            "low_stock_threshold": 5,
+            "created_at": "2025-10-18T10:00:00Z",
+            "updated_at": "2025-10-18T10:00:00Z"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 5,
+        "fields": {
+            "name": "Cooking Oil 2L",
+            "sku": "OIL001",
+            "category": "Oils",
+            "unit_price": "8.50",
+            "quantity_in_stock": 30,
+            "low_stock_threshold": 8,
+            "created_at": "2025-10-18T10:00:00Z",
+            "updated_at": "2025-10-18T10:00:00Z"
+        }
+    }
+]
