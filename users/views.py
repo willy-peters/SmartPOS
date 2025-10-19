@@ -104,12 +104,12 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class RegisterView(generics.CreateAPIView):
     """
-    User registration endpoint (Admin only).
+    User registration endpoint (Public).
     POST /api/auth/register/
     """
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [AllowAny]
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -123,6 +123,7 @@ class RegisterView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED
         )
+
 
 
 class LoginView(generics.GenericAPIView):
