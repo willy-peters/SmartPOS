@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 from .models import Sale, SaleItem
 from products.models import Product  # Adjust import based on your project structure
+from django.core.exceptions import ValidationError
 
 
 class SaleItemSerializer(serializers.ModelSerializer):
@@ -22,7 +23,7 @@ class SaleItemSerializer(serializers.ModelSerializer):
             'id',
             'product_id',
             'product_name',
-            'product_code',
+            # 'product_code',
             'quantity',
             'price_at_sale',
             'subtotal'
@@ -120,12 +121,17 @@ class SaleSerializer(serializers.ModelSerializer):
             product_id = item_data.pop('product_id')
             product = Product.objects.select_for_update().get(id=product_id)
             
-            # Validate stock again (in case of concurrent transactions)
-            if product.stock_quantity < item_data['quantity']:
-                raise serializers.ValidationError(
-                    f"Insufficient stock for {product.name}. "
-                    f"Available: {product.stock_quantity}"
-                )
+            # Decrease stock using helper method
+            try:
+                product.decrease_stock(item_data.get('quantity', 0))
+            except ValidationError as e:
+                raise serializers.ValidationError({
+                    'items': str(e)
+                })
+            
+            # Set price_at_sale if missing
+            if 'price_at_sale' not in item_data:
+                item_data['price_at_sale'] = product.unit_price
             
             # Create sale item
             sale_item = SaleItem.objects.create(
@@ -133,10 +139,6 @@ class SaleSerializer(serializers.ModelSerializer):
                 product=product,
                 **item_data
             )
-            
-            # Update product inventory
-            product.stock_quantity -= item_data['quantity']
-            product.save(update_fields=['stock_quantity'])
             
             # Calculate running total
             total_amount += sale_item.subtotal
@@ -146,6 +148,7 @@ class SaleSerializer(serializers.ModelSerializer):
         sale.save(update_fields=['total_amount'])
         
         return sale
+
     
     def update(self, instance, validated_data):
         """
