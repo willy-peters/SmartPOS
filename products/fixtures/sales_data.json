@@ -1,0 +1,202 @@
+[
+  {
+    "model": "sales.sale",
+    "pk": 1,
+    "fields": {
+      "sale_date": "2025-10-15T09:30:00Z",
+      "cashier": 2,
+      "total_amount": "159.97",
+      "transaction_id": "TXN-A1B2C3D4E5F6"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 1,
+    "fields": {
+      "sale": 1,
+      "product": 1,
+      "quantity": 2,
+      "price_at_sale": "49.99"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 2,
+    "fields": {
+      "sale": 1,
+      "product": 2,
+      "quantity": 1,
+      "price_at_sale": "59.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 2,
+    "fields": {
+      "sale_date": "2025-10-15T14:45:00Z",
+      "cashier": 3,
+      "total_amount": "234.96",
+      "transaction_id": "TXN-G7H8I9J0K1L2"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 3,
+    "fields": {
+      "sale": 2,
+      "product": 3,
+      "quantity": 3,
+      "price_at_sale": "29.99"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 4,
+    "fields": {
+      "sale": 2,
+      "product": 4,
+      "quantity": 2,
+      "price_at_sale": "79.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 3,
+    "fields": {
+      "sale_date": "2025-10-16T10:15:00Z",
+      "cashier": 2,
+      "total_amount": "119.97",
+      "transaction_id": "TXN-M3N4O5P6Q7R8"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 5,
+    "fields": {
+      "sale": 3,
+      "product": 5,
+      "quantity": 2,
+      "price_at_sale": "29.99"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 6,
+    "fields": {
+      "sale": 3,
+      "product": 1,
+      "quantity": 1,
+      "price_at_sale": "59.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 4,
+    "fields": {
+      "sale_date": "2025-10-17T16:20:00Z",
+      "cashier": 3,
+      "total_amount": "359.94",
+      "transaction_id": "TXN-S9T0U1V2W3X4"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 7,
+    "fields": {
+      "sale": 4,
+      "product": 2,
+      "quantity": 2,
+      "price_at_sale": "59.99"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 8,
+    "fields": {
+      "sale": 4,
+      "product": 4,
+      "quantity": 3,
+      "price_at_sale": "79.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 5,
+    "fields": {
+      "sale_date": "2025-10-18T11:00:00Z",
+      "cashier": 2,
+      "total_amount": "199.96",
+      "transaction_id": "TXN-Y5Z6A7B8C9D0"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 9,
+    "fields": {
+      "sale": 5,
+      "product": 1,
+      "quantity": 4,
+      "price_at_sale": "49.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 6,
+    "fields": {
+      "sale_date": "2025-10-18T15:30:00Z",
+      "cashier": 3,
+      "total_amount": "149.95",
+      "transaction_id": "TXN-E1F2G3H4I5J6"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 10,
+    "fields": {
+      "sale": 6,
+      "product": 3,
+      "quantity": 5,
+      "price_at_sale": "29.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 7,
+    "fields": {
+      "sale_date": "2025-10-19T08:45:00Z",
+      "cashier": 2,
+      "total_amount": "319.96",
+      "transaction_id": "TXN-K7L8M9N0O1P2"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 11,
+    "fields": {
+      "sale": 7,
+      "product": 4,
+      "quantity": 4,
+      "price_at_sale": "79.99"
+    }
+  },
+  {
+    "model": "sales.sale",
+    "pk": 8,
+    "fields": {
+      "sale_date": "2025-10-19T12:20:00Z",
+      "cashier": 3,
+      "total_amount": "89.97",
+      "transaction_id": "TXN-Q3R4S5T6U7V8"
+    }
+  },
+  {
+    "model": "sales.saleitem",
+    "pk": 12,
+    "fields": {
+      "sale": 8,
+      "product": 3,
+      "quantity": 3,
+      "price_at_sale": "29.99"
+    }
+  }
+]
