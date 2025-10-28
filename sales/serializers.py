@@ -85,17 +85,17 @@ class SaleSerializer(serializers.ModelSerializer):
             quantity = item_data.get('quantity')
             
             try:
-                product = Product.objects.select_for_update().get(id=product_id)
+                product = Product.objects.get(id=product_id)  # Remove select_for_update from validate
                 
-                if product.stock_quantity < quantity:
+                if product.quantity_in_stock < quantity:
                     raise serializers.ValidationError({
                         'items': f"Insufficient stock for {product.name}. "
-                                f"Available: {product.stock_quantity}, Requested: {quantity}"
+                                f"Available: {product.quantity_in_stock}, Requested: {quantity}"
                     })
                 
-                # Validate price_at_sale if not provided, use current price
+                # FIX: Use unit_price instead of selling_price
                 if 'price_at_sale' not in item_data:
-                    item_data['price_at_sale'] = product.selling_price
+                    item_data['price_at_sale'] = product.unit_price  # ✓ Changed from selling_price
                 
             except Product.DoesNotExist:
                 raise serializers.ValidationError({

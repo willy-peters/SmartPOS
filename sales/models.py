@@ -18,6 +18,7 @@ class Sale(models.Model):
     total_amount = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
+        default = 0,
         validators=[MinValueValidator(Decimal('0.01'))]
     )
     transaction_id = models.CharField(

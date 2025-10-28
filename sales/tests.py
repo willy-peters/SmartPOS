@@ -33,13 +33,13 @@ class SaleAPITestCase(TestCase):
         )
 
         # Create products - adjusted to match your Product model
-        # Assuming your Product has: name, selling_price, stock_quantity
+        # Assuming your Product has: name, selling_price, quantity_in_stock
         self.product1 = Product.objects.create(
             name='Test Laptop',
             description='Test laptop product',
             cost_price=Decimal('800.00'),
             selling_price=Decimal('999.99'),
-            stock_quantity=10,
+            quantity_in_stock=10,
             low_stock_threshold=5
         )
         self.product2 = Product.objects.create(
@@ -47,7 +47,7 @@ class SaleAPITestCase(TestCase):
             description='Test mouse product',
             cost_price=Decimal('20.00'),
             selling_price=Decimal('29.99'),
-            stock_quantity=50,
+            quantity_in_stock=50,
             low_stock_threshold=10
         )
 
@@ -92,8 +92,8 @@ class SaleAPITestCase(TestCase):
         # Verify inventory was updated
         self.product1.refresh_from_db()
         self.product2.refresh_from_db()
-        self.assertEqual(self.product1.stock_quantity, 8)  # 10 - 2
-        self.assertEqual(self.product2.stock_quantity, 47)  # 50 - 3
+        self.assertEqual(self.product1.quantity_in_stock, 8)  # 10 - 2
+        self.assertEqual(self.product2.quantity_in_stock, 47)  # 50 - 3
 
     def test_create_sale_insufficient_stock(self):
         """Test sale creation with insufficient stock"""
@@ -115,7 +115,7 @@ class SaleAPITestCase(TestCase):
         
         # Verify inventory wasn't changed
         self.product1.refresh_from_db()
-        self.assertEqual(self.product1.stock_quantity, 10)
+        self.assertEqual(self.product1.quantity_in_stock, 10)
 
     def test_create_sale_unauthenticated(self):
         """Test sale creation without authentication"""

@@ -21,6 +21,8 @@ class SaleViewSet(viewsets.ModelViewSet):
     - POST /api/sales/ - Create new sale
     - GET /api/sales/{id}/ - Retrieve specific sale
     - GET /api/sales/statistics/ - Get sales statistics
+    - GET /api/sales/daily-summary/ - Get daily sales summary
+    - GET /api/sales/today/ - Get today's sales
     """
     permission_classes = [IsAuthenticated, SalePermission]
     filter_backends = [DjangoFilterBackend]
@@ -202,6 +204,69 @@ class SaleViewSet(viewsets.ModelViewSet):
             'data': statistics
         })
     
+    @action(detail=False, methods=['get'], url_path='daily-summary')
+    def daily_summary(self, request):
+        """
+        Get daily sales summary
+        Query params:
+        - date: YYYY-MM-DD (defaults to today)
+        """
+        # Get date from query params or use today
+        date_str = request.query_params.get('date')
+        if date_str:
+            try:
+                from datetime import datetime
+                target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return Response(
+                    {
+                        'status': 'error',
+                        'message': 'Invalid date format. Use YYYY-MM-DD'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            target_date = timezone.now().date()
+        
+        # Get sales for the target date
+        queryset = self.get_queryset().filter(sale_date__date=target_date)
+        
+        # Calculate summary
+        summary = queryset.aggregate(
+            total_sales=Count('id'),
+            total_revenue=Sum('total_amount'),
+            total_items=Sum('items__quantity')
+        )
+        
+        # Get sales by cashier
+        sales_by_cashier = list(
+            queryset.values(
+                'cashier__id',
+                'cashier__username',
+                'cashier__first_name',
+                'cashier__last_name'
+            ).annotate(
+                sales_count=Count('id'),
+                revenue=Sum('total_amount')
+            ).order_by('-revenue')
+        )
+        
+        return Response({
+            'status': 'success',
+            'data': {
+                'date': target_date.isoformat(),
+                'total_sales': summary['total_sales'] or 0,
+                'total_revenue': float(summary['total_revenue'] or 0),
+                'total_items_sold': summary['total_items'] or 0,
+                'average_sale_value': (
+                    float(summary['total_revenue'] / summary['total_sales'])
+                    if summary['total_sales'] and summary['total_sales'] > 0
+                    else 0
+                ),
+                'sales_by_cashier': sales_by_cashier
+            }
+        })
+    
     @action(detail=False, methods=['get'])
     def today(self, request):
         """Get today's sales for the current user"""
@@ -218,7 +283,7 @@ class SaleViewSet(viewsets.ModelViewSet):
             'data': {
                 'sales': serializer.data,
                 'count': queryset.count(),
-                'total_amount': total,
+                'total_amount': float(total),
                 'date': today.isoformat()
             }
         })
