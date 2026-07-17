@@ -36,6 +36,134 @@
 
 ---
 
+## **Startup Guide**
+
+### **Prerequisites**
+
+- Python **3.8+**
+- `pip` and `venv` available on your system
+
+### **1. Clone the repository**
+
+```bash
+git clone <repository-url>
+cd SmartPOS
+```
+
+### **2. Create and activate a virtual environment**
+
+**Windows (PowerShell):**
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+**Windows (Command Prompt):**
+
+```cmd
+python -m venv venv
+venv\Scripts\activate.bat
+```
+
+**macOS / Linux:**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### **3. Install dependencies**
+
+```bash
+pip install -r requirements.txt
+```
+
+### **4. Apply database migrations**
+
+```bash
+python manage.py migrate
+```
+
+### **5. Create an admin user**
+
+Registration via `/api/auth/register/` requires an existing admin, so create the first admin with Django’s management command:
+
+```bash
+python manage.py createsuperuser
+```
+
+When prompted, set a username, email, and password. Then assign the admin role (and staff flag) in the Django shell:
+
+```bash
+python manage.py shell
+```
+
+```python
+from users.models import User
+user = User.objects.get(username='YOUR_USERNAME')
+user.role = 'admin'
+user.save()  # also sets is_staff=True for admin role
+exit()
+```
+
+Or create an admin directly in one step:
+
+```bash
+python manage.py shell
+```
+
+```python
+from users.models import User
+User.objects.create_superuser(
+    username='admin',
+    email='admin@example.com',
+    password='your-secure-password',
+    role='admin',
+)
+exit()
+```
+
+### **6. Run the development server**
+
+```bash
+python manage.py runserver
+```
+
+The API is available at:
+
+```
+http://127.0.0.1:8000
+```
+
+Django admin (optional):
+
+```
+http://127.0.0.1:8000/admin/
+```
+
+### **7. Verify with a login request**
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d "{\"username\": \"admin\", \"password\": \"your-secure-password\"}"
+```
+
+Use the returned `access` token in subsequent requests:
+
+```
+Authorization: Bearer <access_token>
+```
+
+### **8. Run tests (optional)**
+
+```bash
+python manage.py test
+```
+
+---
+
 ## **API Overview**
 
 ### **Base URL**

@@ -122,7 +122,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         
         # Check if product has been sold
-        if hasattr(instance, 'saleitem_set') and instance.saleitem_set.exists():
+        if hasattr(instance, 'sale_items') and instance.sale_items.exists():
             return Response(
                 {
                     'status': 'error',
