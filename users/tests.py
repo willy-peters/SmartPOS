@@ -180,7 +180,7 @@ class UserPermissionsTest(APITestCase):
     def test_cashier_cannot_update_other_profile(self):
         """Test cashier cannot update other user's profile."""
         self.client.force_authenticate(user=self.cashier)
-        url = reverse('user-detail', kwargs={'pk': self.cashier.id})
+        url = reverse('user-detail', kwargs={'pk': self.admin.id})
         data = {'first_name': 'Hacked'}
         response = self.client.patch(url, data)
         
@@ -189,7 +189,7 @@ class UserPermissionsTest(APITestCase):
     def test_admin_cannot_demote_self(self):
         """Test admin cannot demote themselves."""
         self.client.force_authenticate(user=self.admin)
-        url = reverse('user-detail', kwargs={'pk': self.cashier.id})
+        url = reverse('user-detail', kwargs={'pk': self.admin.id})
         data = {'role': 'cashier'}
         response = self.client.patch(url, data)
         
@@ -198,7 +198,7 @@ class UserPermissionsTest(APITestCase):
     def test_admin_cannot_delete_self(self):
         """Test admin cannot delete their own account."""
         self.client.force_authenticate(user=self.admin)
-        url = reverse('user-detail', kwargs={'pk': self.cashier.id})
+        url = reverse('user-detail', kwargs={'pk': self.admin.id})
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

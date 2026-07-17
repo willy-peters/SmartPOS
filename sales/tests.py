@@ -36,17 +36,17 @@ class SaleAPITestCase(TestCase):
         # Assuming your Product has: name, selling_price, quantity_in_stock
         self.product1 = Product.objects.create(
             name='Test Laptop',
-            description='Test laptop product',
-            cost_price=Decimal('800.00'),
-            selling_price=Decimal('999.99'),
+            sku='SKU-LAPTOP-1',
+            category='Electronics',
+            unit_price=Decimal('999.99'),
             quantity_in_stock=10,
             low_stock_threshold=5
         )
         self.product2 = Product.objects.create(
             name='Test Mouse',
-            description='Test mouse product',
-            cost_price=Decimal('20.00'),
-            selling_price=Decimal('29.99'),
+            sku='SKU-MOUSE-1',
+            category='Electronics',
+            unit_price=Decimal('29.99'),
             quantity_in_stock=50,
             low_stock_threshold=10
         )
@@ -167,8 +167,9 @@ class SaleAPITestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 1)
+        # Paginated list responses use 'results'
         self.assertEqual(
-            response.data['data'][0]['transaction_id'],
+            response.data['results'][0]['transaction_id'],
             sale1.transaction_id
         )
 
@@ -259,11 +260,9 @@ class SaleAPITestCase(TestCase):
 
         self.client.force_authenticate(user=self.cashier1)
         
-        # Filter for last 5 days
-        start_date = (timezone.now() - timedelta(days=5)).isoformat()
-        response = self.client.get(
-            f'/api/sales/?start_date={start_date}'
-        )
+        # Filter for last 5 days (pass as query dict so datetime is URL-encoded)
+        start_date = (timezone.now() - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
+        response = self.client.get('/api/sales/', {'start_date': start_date})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 1)
@@ -319,4 +318,4 @@ class SaleAPITestCase(TestCase):
         )
         sale_item = sale.items.first()
         
-        self.assertEqual(sale_item.price_at_sale, self.product1.selling_price)
+        self.assertEqual(sale_item.price_at_sale, self.product1.unit_price)

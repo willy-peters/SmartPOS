@@ -57,3 +57,11 @@ class User(AbstractUser):
     def is_cashier(self):
         """Check if user has cashier role."""
         return self.role == 'cashier'
+
+    def save(self, *args, **kwargs):
+        """Synchronize role with is_staff flag."""
+        if self.role == 'admin':
+            self.is_staff = True
+        elif self.role == 'cashier' and not self.is_superuser:
+            self.is_staff = False
+        super().save(*args, **kwargs)

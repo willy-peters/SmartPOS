@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Avg
 from django.utils import timezone
 from datetime import timedelta
 from .models import Sale, SaleItem
@@ -161,7 +161,19 @@ class SaleViewSet(viewsets.ModelViewSet):
             )
         
         # Get date range from query params
-        days = int(request.query_params.get('days', 30))
+        try:
+            days = int(request.query_params.get('days', 30))
+            if days < 0:
+                raise ValueError
+        except ValueError:
+            return Response(
+                {
+                    'status': 'error',
+                    'message': 'Invalid days value. Must be a non-negative integer.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         start_date = timezone.now() - timedelta(days=days)
         
         # Calculate statistics
@@ -178,7 +190,7 @@ class SaleViewSet(viewsets.ModelViewSet):
                 total=Sum('quantity')
             )['total'] or 0,
             'average_sale_value': sales.aggregate(
-                avg=Sum('total_amount')
+                avg=Avg('total_amount')
             )['avg'] or 0,
             'top_cashiers': list(
                 sales.values('cashier__username', 'cashier__first_name', 'cashier__last_name')

@@ -7,8 +7,6 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     sku = models.CharField(max_length=100, unique=True, db_index=True)
     category = models.CharField(max_length=100, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True)
     unit_price = models.DecimalField(
         max_digits=10, 
         decimal_places=2,

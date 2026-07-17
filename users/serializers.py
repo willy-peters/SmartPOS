@@ -50,6 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
             # Check if admin is trying to change their own role
             if (self.instance.id == request.user.id and 
                 self.instance.role == 'admin' and 
+                'role' in attrs and 
                 attrs.get('role') != 'admin'):
                 raise serializers.ValidationError(
                     {"role": "Admin users cannot demote themselves."}
@@ -109,17 +110,32 @@ class RegisterSerializer(serializers.ModelSerializer):
                   'role', 'first_name', 'last_name']
     
     def validate(self, attrs):
-        """Validate password confirmation matches."""
+        """Validate password confirmation and restrict role elevation."""
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError(
                 {"password_confirm": "Password fields didn't match."}
             )
+
+        # Only authenticated admins may create users with the admin role.
+        # Unauthenticated or non-admin registrants are forced to cashier.
+        request = self.context.get('request')
+        requester = getattr(request, 'user', None) if request else None
+        is_admin_requester = (
+            requester is not None
+            and requester.is_authenticated
+            and getattr(requester, 'role', None) == 'admin'
+        )
+        if not is_admin_requester:
+            attrs['role'] = 'cashier'
+
         return attrs
     
     def create(self, validated_data):
         """Create new user."""
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
+        # Default role to cashier if omitted
+        validated_data.setdefault('role', 'cashier')
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()

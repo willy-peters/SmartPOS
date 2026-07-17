@@ -9,7 +9,7 @@ class SaleItemSerializer(serializers.ModelSerializer):
     """
     Serializer for individual sale items with product details
     """
-    product_id = serializers.IntegerField(write_only=True)
+    product_id = serializers.IntegerField()
     product_name = serializers.CharField(source='product.name', read_only=True)
     subtotal = serializers.DecimalField(
         max_digits=10, 
@@ -23,12 +23,11 @@ class SaleItemSerializer(serializers.ModelSerializer):
             'id',
             'product_id',
             'product_name',
-            # 'product_code',
             'quantity',
             'price_at_sale',
             'subtotal'
         ]
-        read_only_fields = ['id', 'subtotal', 'product_name', 'product_code']
+        read_only_fields = ['id', 'subtotal', 'product_name', 'price_at_sale']
     
     def validate_product_id(self, value):
         """Validate that product exists"""
@@ -59,7 +58,7 @@ class SaleSerializer(serializers.ModelSerializer):
             'total_amount',
             'items'
         ]
-        read_only_fields = ['id', 'transaction_id', 'sale_date', 'total_amount']
+        read_only_fields = ['id', 'transaction_id', 'sale_date', 'total_amount', 'cashier']
     
     def get_cashier_name(self, obj):
         """Get cashier's full name"""
@@ -79,23 +78,29 @@ class SaleSerializer(serializers.ModelSerializer):
         """Validate stock availability for all items"""
         items = data.get('items', [])
         
-        # Check stock availability for each item
+        # Aggregate quantities by product_id to correctly check combined request stock
+        product_quantities = {}
         for item_data in items:
             product_id = item_data.get('product_id')
-            quantity = item_data.get('quantity')
+            quantity = item_data.get('quantity', 0)
+            product_quantities[product_id] = product_quantities.get(product_id, 0) + quantity
+            
+        # Check stock availability and set price_at_sale
+        for item_data in items:
+            product_id = item_data.get('product_id')
+            total_requested = product_quantities.get(product_id, 0)
             
             try:
-                product = Product.objects.get(id=product_id)  # Remove select_for_update from validate
+                product = Product.objects.get(id=product_id)
                 
-                if product.quantity_in_stock < quantity:
+                if product.quantity_in_stock < total_requested:
                     raise serializers.ValidationError({
                         'items': f"Insufficient stock for {product.name}. "
-                                f"Available: {product.quantity_in_stock}, Requested: {quantity}"
+                                f"Available: {product.quantity_in_stock}, Total Requested: {total_requested}"
                     })
                 
-                # FIX: Use unit_price instead of selling_price
-                if 'price_at_sale' not in item_data:
-                    item_data['price_at_sale'] = product.unit_price  # ✓ Changed from selling_price
+                # Force price_at_sale to be the current product unit_price
+                item_data['price_at_sale'] = product.unit_price
                 
             except Product.DoesNotExist:
                 raise serializers.ValidationError({
@@ -129,9 +134,8 @@ class SaleSerializer(serializers.ModelSerializer):
                     'items': str(e)
                 })
             
-            # Set price_at_sale if missing
-            if 'price_at_sale' not in item_data:
-                item_data['price_at_sale'] = product.unit_price
+            # Force final price_at_sale under database lock
+            item_data['price_at_sale'] = product.unit_price
             
             # Create sale item
             sale_item = SaleItem.objects.create(
@@ -148,7 +152,6 @@ class SaleSerializer(serializers.ModelSerializer):
         sale.save(update_fields=['total_amount'])
         
         return sale
-
     
     def update(self, instance, validated_data):
         """
